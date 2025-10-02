@@ -21,19 +21,14 @@ It is modularized into separate handler files for easier maintenance and reuse i
 
 ---
 
-- **main.cpp**  
-  The entry point of the program.  
-  - Initializes WiFi, MQTT, and Modbus.  
-  - Runs the main loop for polling Modbus sensors, handling MQTT, and OTA updates.
 
+## ⚙️ Setup Instructions  
 
-- **WiFiHandler.h / WiFiHandler.cpp**  
-  Responsible for connecting the ESP8266 to WiFi.  
-  - Handles WiFi setup in **STA & AP mode** (client).  
-  - Provides reconnection logic if WiFi drops.  
-  - Contains SSID & password configuration.
+### 1️⃣ **WiFiHandler**
+**In `WiFiHandler.cpp`:**
+- Update the file with your preferred **SSID** and **Password** for both **STA** (Station mode) and **AP** (Access Point).  
 
- **In `To SetUp in main.cpp`:**
+**In `main.cpp`:**
 ```cpp
 #include "WiFiHandler.h"
 
@@ -47,26 +42,12 @@ void loop() {
 ```
 
 **Notes:**  
-- OTA (`ArduinoOTA`) is initialized only after STA is connected at WiFiHandler.cpp, so firmware updates work only with WiFi available.  
+- OTA (`ArduinoOTA`) is initialized only after STA is connected, so firmware updates work only with WiFi available.  
 
+---
 
-
-- **MQTTHandler.h / MQTTHandler.cpp**  
-  Handles MQTT communication.  
-  - Connects to the broker.  
-  - Defines publish/subscribe topics.  
-  - Provides `publishMessage()` function to send sensor JSON data.  
-  - Includes auto-reconnect if connection is lost.
-
-**To publish from any file:**  
-```cpp
-#include "MQTTHandler.h"
-
-publishMessage("your/topic", "variable".c_str());
-```
-
-
-  **In `To SetUp in main.cpp`:**
+### 2️⃣ **MQTTHandler**
+**In `main.cpp`:**
 ```cpp
 #include "MQTTHandler.h"
 
@@ -84,19 +65,19 @@ void loop() {
 }
 ```
 
+**To publish from any file:**  
+```cpp
+publishMessage("your/topic", "Hello World");
+```
+
 **Notes:**  
 - MQTT requires Wi-Fi STA mode (from WiFiHandler).  
 - Topics and broker address are configured in `MQTTHandler.cpp`.  
 
+---
 
-- **ModbusHandler.h / ModbusHandler.cpp**  
-  Handles Modbus RTU communication over RS485.  
-  - Configures RS485 DE/RE pins for transmission.  
-  - Defines functions to read registers from the sensor.  
-  - Converts raw register values into **temperature & humidity**.   
-
-
-  **In `To SetUp in main.cpp`:**
+### 3️⃣ **ModbusHandler**
+**In `main.cpp`:**
 ```cpp
 #include "ModbusHandler.h"
 
@@ -109,11 +90,11 @@ void loop() {
 }
 ```
 
-
 **Notes:**  
-- `readModbusJSON()` uses an internal **3-second timer** to avoid flooding the Modbus slave.  
+- In main.cpp there is a an internal **3-second timer** to avoid flooding the Modbus slave with `readModbusJSON()`.  
 - Queries register `0` (temperature) and `1` (humidity) from the slave.  
-- Automatically publishes results as JSON to MQTT if connected, otherwise logs to Serial.  
+- Automatically publishes results as JSON.
+
 - Example JSON payload:
 ```json
 {
@@ -122,67 +103,19 @@ void loop() {
 }
 ```
 
+---
 
+## 🚀 Workflow Summary  
+1. **WiFiHandler** → Connects to Wi-Fi & enables OTA.  
+2. **MQTTHandler** → Connects to MQTT broker, provides `publishMessage()`.  
+3. **ModbusHandler** → Reads sensor registers via RS485 and publishes JSON data to MQTT.  
+4. **main.cpp** → Initializes all handlers and ties everything together.  
 
 ---
 
-## ⚡ Setup Instructions
-
-### 1. Hardware
-- ESP8266 
-- RS485 transceiver module (MAX485).  
-- Modbus RTU sensor (e.g., EID041-G01S).  
-- Connect `RO/TX`, `DI/RX`, and `DE/RE` to ESP pins.  
-- Power from 5V or 3.3V depending on module.
-
-### 2. Software
-- Install PlatformIO or Arduino IDE.  
-- Required libraries:
-  - `ModbusMaster`
-  - `PubSubClient`
-  - `ArduinoJson`
-  - `ArduinoOTA`
-
-### 3. Configuration
-- **WiFiHandler.h** → set your WiFi SSID & password.  
-- **MQTTHandler.h** → set broker IP, port, and topics.  
-- **ModbusHandler.cpp** → set:
-  - Slave ID (`node.begin(slaveID, Serial)`)  
-  - Register addresses (`START_ADDRESS`, `NUM_REGISTERS`)  
-
-### 4. Upload
-- Connect ESP8266 via USB.  
-- Upload via PlatformIO / Arduino IDE.  
-- Check Serial Monitor for logs.
-
----
-
-
-## 🔄 How to Reuse for Future Projects
-
-- **Need a different sensor?**  
-  Update register addresses and conversion logic in **ModbusHandler.cpp**.  
-
-- **Need a different MQTT topic or broker?**  
-  Update **MQTTHandler.h**.  
-
-- **New WiFi credentials?**  
-  Update **WiFiHandler.h**.  
-
-- **Want to add another protocol (LoRa, HTTP, etc.)?**  
-  Create a new `Handler.h/.cpp` file and call it from `main.cpp`.  
-
-This modular structure allows you to quickly adapt the project without rewriting everything.
-
----
-
-## 🛠 Example Workflow
-1. ESP boots up → connects to WiFi & MQTT.  
-2. Every 3s → reads Modbus registers (temperature & humidity).  
-3. Publishes JSON to MQTT topic:  
-
-```json
-{
-  "temperature": 23.5,
-  "humidity": 55.2
-}
+## 🔧 Future Reuse  
+- To start a new project, copy the `Handler` files into your project folder.  
+- Update only:  
+  - WiFi SSID & password in `WiFiHandler.cpp`.  
+  - MQTT broker/server settings in `MQTTHandler.cpp`.  
+  - Slave ID / register map in `ModbusHandler.cpp` (if different sensors are used).  
