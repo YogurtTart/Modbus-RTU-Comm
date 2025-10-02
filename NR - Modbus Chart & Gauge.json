@@ -1,0 +1,575 @@
+[
+    {
+        "id": "f09e8f858d53ee98",
+        "type": "tab",
+        "label": "Live Guage, & Charts",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "1e087485c9719318",
+        "type": "group",
+        "z": "f09e8f858d53ee98",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "6abc75354d25402d",
+            "b05b2a8ba5f7e873",
+            "b267734b8eb10fef",
+            "219f72dcb56aa24e",
+            "c0d4c9577fd9240d",
+            "75cda6b92616f5a8",
+            "47365fee422a6091",
+            "4e793b4ad6653c18",
+            "70e9bf22781e690c",
+            "93b9e0a7d7c37ad6"
+        ],
+        "x": 294,
+        "y": 99,
+        "w": 1072,
+        "h": 522
+    },
+    {
+        "id": "6abc75354d25402d",
+        "type": "mqtt in",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "name": "MQTT IN",
+        "topic": "Lora/receive",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "a94832385caed4cc",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 380,
+        "y": 400,
+        "wires": [
+            [
+                "75cda6b92616f5a8",
+                "93b9e0a7d7c37ad6"
+            ]
+        ]
+    },
+    {
+        "id": "b05b2a8ba5f7e873",
+        "type": "ui-gauge",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "name": "Temp",
+        "group": "72b42e428b96ca71",
+        "order": 4,
+        "value": "payload",
+        "valueType": "msg",
+        "width": "3",
+        "height": "3",
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Temp",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "units",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "4",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "7",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": 10,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1250,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b267734b8eb10fef",
+        "type": "ui-gauge",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "name": "Humid",
+        "group": "72b42e428b96ca71",
+        "order": 3,
+        "value": "payload",
+        "valueType": "msg",
+        "width": "3",
+        "height": "3",
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Humid",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "units",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "4",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "7",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": 10,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1290,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "219f72dcb56aa24e",
+        "type": "ui-text",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "group": "72b42e428b96ca71",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "name": "Counter",
+        "label": "Counter: ",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "style": true,
+        "font": "Arial Black,Arial Black,Gadget,sans-serif",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 1180,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "c0d4c9577fd9240d",
+        "type": "ui-text",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "group": "72b42e428b96ca71",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "name": "ID",
+        "label": "ID:",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "Arial Black,Arial Black,Gadget,sans-serif",
+        "fontSize": "20",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 1110,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "75cda6b92616f5a8",
+        "type": "function",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "name": "function 3",
+        "func": "// Get existing data or initialize\nlet nodesData = flow.get(\"nodesData\") || {};\n\n// Incoming message\nlet nodeID = msg.payload.nodeID;\n\n// Save/update the node's data (store entire payload)\nnodesData[nodeID] = { ...msg.payload };\n\n// Store back to flow context\nflow.set(\"nodesData\", nodesData);\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 400,
+        "wires": [
+            [
+                "47365fee422a6091"
+            ]
+        ]
+    },
+    {
+        "id": "47365fee422a6091",
+        "type": "function",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "name": "Node 1",
+        "func": "// Get stored data\nlet nodesData = flow.get(\"nodesData\") || {};\n\n// Take the first node's data (if any)\nlet keys = Object.keys(nodesData);\nif (keys.length > 0) {\n    let data = nodesData[keys[0]];\n\n    let tempMsg = { payload: data.temperature, topic: \"temperature\" };\n    let humidMsg = { payload: data.humidity, topic: \"humidity\" };\n\n    return [null, null, tempMsg, humidMsg];\n} else {\n    return [null, null];\n}\n",
+        "outputs": 4,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 400,
+        "wires": [
+            [
+                "c0d4c9577fd9240d"
+            ],
+            [
+                "219f72dcb56aa24e"
+            ],
+            [
+                "b05b2a8ba5f7e873",
+                "4e793b4ad6653c18"
+            ],
+            [
+                "b267734b8eb10fef",
+                "70e9bf22781e690c"
+            ]
+        ]
+    },
+    {
+        "id": "4e793b4ad6653c18",
+        "type": "ui-chart",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "group": "5a03fb312c7ed9c6",
+        "name": "Temperature",
+        "label": "chart",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "{HH}:{mm}:{ss}",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "Temperature",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "20",
+        "ymax": "28",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": "4",
+        "showLegend": true,
+        "removeOlder": "1",
+        "removeOlderUnit": "60",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "6",
+        "height": "6",
+        "className": "",
+        "interpolation": "smooth",
+        "x": 1230,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "70e9bf22781e690c",
+        "type": "ui-chart",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "group": "c36eab66331c9626",
+        "name": "Humidity",
+        "label": "chart",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "100",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "60",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "6",
+        "height": "6",
+        "className": "",
+        "interpolation": "smooth",
+        "x": 1220,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "93b9e0a7d7c37ad6",
+        "type": "debug",
+        "z": "f09e8f858d53ee98",
+        "g": "1e087485c9719318",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "a94832385caed4cc",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "192.168.31.66",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "5",
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "72b42e428b96ca71",
+        "type": "ui-group",
+        "name": "Nodes Connected",
+        "page": "f36cf2f0841c83b7",
+        "width": "6",
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "5a03fb312c7ed9c6",
+        "type": "ui-group",
+        "name": "Temperature Chart",
+        "page": "f36cf2f0841c83b7",
+        "width": 6,
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "c36eab66331c9626",
+        "type": "ui-group",
+        "name": "Humidity Chart",
+        "page": "f36cf2f0841c83b7",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "f36cf2f0841c83b7",
+        "type": "ui-page",
+        "name": "Gauge and Live Graph",
+        "ui": "6f4e786a3e9e6a7b",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "21f85220f29eae1b",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "6f4e786a3e9e6a7b",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "21f85220f29eae1b",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "139cb4a0ecec9830",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.27.2"
+        }
+    }
+]
