@@ -67,7 +67,7 @@ void loop() {
 
 **To publish from any file:**  
 ```cpp
-publishMessage("your/topic", "Hello World");
+publishMessage("your/topic", variable.c_str());
 ```
 
 **Notes:**  
