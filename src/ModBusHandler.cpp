@@ -1,17 +1,21 @@
 #include "ModbusHandler.h"
-#include "MQTTHandler.h"   // publish
+#include "MQTTHandler.h"
 #include <Arduino.h>
 
-// RS485 DE/RE pin
 #define MAX485_DE 5
 
-// RS485 control
+// RS485 DE/RE control
 void preTransmission()  { digitalWrite(MAX485_DE, HIGH); }
 void postTransmission() { digitalWrite(MAX485_DE, LOW); }
 
 ModbusMaster node;
 
-// Convert Modbus register to signed temperature
+// =================== SLAVE LIST ===================
+// Start with empty array, WebServer can add/remove later
+ModbusDevice slaves[MAX_SLAVES];
+size_t slaveCount = 0;
+
+// =================== HELPERS ===================
 float convertRegisterToTemperature(uint16_t regVal) {
   int16_t tempInt;
   if (regVal & 0x8000) tempInt = -((0xFFFF - regVal) + 1);
@@ -19,46 +23,63 @@ float convertRegisterToTemperature(uint16_t regVal) {
   return tempInt * 0.1;
 }
 
-// Convert Modbus register to humidity
 float convertRegisterToHumidity(uint16_t regVal) {
   return regVal * 0.1;
 }
 
+// =================== SETUP ===================
 void setupModbus() {
   pinMode(MAX485_DE, OUTPUT);
   digitalWrite(MAX485_DE, LOW);
 
-  node.begin(1, Serial); // Slave ID = 1
+  // Initialize Modbus with dummy slave, will change dynamically
+  node.begin(1, Serial);
   node.preTransmission(preTransmission);
   node.postTransmission(postTransmission);
+
 }
 
-// ----------------- READING ONLY -----------------
-String readModbusJSON() {
-  const uint16_t START_ADDRESS = 0;
-  const uint16_t NUM_REGISTERS = 2;
-
-  // Query Modbus (function code 04: read input registers)
-  uint8_t result = node.readInputRegisters(START_ADDRESS, NUM_REGISTERS);
+// =================== QUERY ONE SLAVE ===================
+String querySlave(const ModbusDevice& sc) {
+  node.begin(sc.id, Serial);
+  uint8_t result = node.readInputRegisters(sc.regStart, sc.regCount);
 
   if (result == node.ku8MBSuccess) {
-    // ✅ Successfully received data
-    float temperature = convertRegisterToTemperature(node.getResponseBuffer(0));
-    float humidity    = convertRegisterToHumidity(node.getResponseBuffer(1));
+    float temp = convertRegisterToTemperature(node.getResponseBuffer(0));
+    float hum  = convertRegisterToHumidity(node.getResponseBuffer(1));
 
-    // Build JSON
     String payload = "{";
-    payload += "\"temperature\":" + String(temperature, 1) + ",";
-    payload += "\"humidity\":" + String(humidity, 1);
+    payload += "\"id\":" + String(sc.id) + ",";
+    payload += "\"name\":\"" + sc.name + "\",";
+    payload += "\"temperature\":" + String(temp, 1) + ",";
+    payload += "\"humidity\":" + String(hum, 1);
     payload += "}";
-
-    Serial.println("JSON Built: " + payload);
     return payload;
-
   } else {
-    // ❌ Error occurred
-    String err = "{\"error\":\"Modbus error: 0x" + String(result, HEX) + "\"}";
-    Serial.println(err);
-    return err;
+    return "{\"id\":" + String(sc.id) + ",\"error\":\"0x" + String(result, HEX) + "\"}";
+  }
+}
+
+// =================== QUERY ALL SLAVES ===================
+String queryAllSlaves() {
+  String allPayload = "[";
+  for (size_t i = 0; i < slaveCount; i++) {
+    allPayload += querySlave(slaves[i]);
+    if (i < slaveCount - 1) allPayload += ",";
+  }
+  allPayload += "]";
+  return allPayload;
+}
+
+void updateSlavesFromWeb(JsonArray arr) {
+  slaveCount = 0;
+  for (JsonObject obj : arr) {
+    if (slaveCount < MAX_SLAVES) {
+      slaves[slaveCount].id       = obj["id"] | 1;       // default ID=1
+      slaves[slaveCount].regStart = obj["regStart"] | 0; // default start
+      slaves[slaveCount].regCount = obj["regCount"] | 2; // default 2 regs
+      slaves[slaveCount].name     = obj["name"] | "slave";
+      slaveCount++;
+    }
   }
 }
