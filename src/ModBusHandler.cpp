@@ -1,85 +1,85 @@
 #include "ModbusHandler.h"
 #include "MQTTHandler.h"
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 #define MAX485_DE 5
 
-// RS485 DE/RE control
+// ---------------- RS485 DE/RE Control ----------------
 void preTransmission()  { digitalWrite(MAX485_DE, HIGH); }
 void postTransmission() { digitalWrite(MAX485_DE, LOW); }
 
 ModbusMaster node;
 
-// =================== SLAVE LIST ===================
-// Start with empty array, WebServer can add/remove later
+// ---------------- SLAVE LIST ----------------
 ModbusDevice slaves[MAX_SLAVES];
 size_t slaveCount = 0;
 
-// =================== HELPERS ===================
+// ---------------- HELPERS ----------------
 float convertRegisterToTemperature(uint16_t regVal) {
-  int16_t tempInt;
-  if (regVal & 0x8000) tempInt = -((0xFFFF - regVal) + 1);
-  else tempInt = regVal;
-  return tempInt * 0.1;
+    int16_t tempInt = (regVal & 0x8000) ? -((0xFFFF - regVal) + 1) : regVal;
+    return tempInt * 0.1;
 }
 
 float convertRegisterToHumidity(uint16_t regVal) {
-  return regVal * 0.1;
+    return regVal * 0.1;
 }
 
-// =================== SETUP ===================
+// ---------------- SETUP ----------------
 void setupModbus() {
-  pinMode(MAX485_DE, OUTPUT);
-  digitalWrite(MAX485_DE, LOW);
+    pinMode(MAX485_DE, OUTPUT);
+    digitalWrite(MAX485_DE, LOW);
 
-  // Initialize Modbus with dummy slave, will change dynamically
-  node.begin(1, Serial);
-  node.preTransmission(preTransmission);
-  node.postTransmission(postTransmission);
-
+    // Initialize Modbus with dummy slave
+    node.begin(1, Serial);
+    node.preTransmission(preTransmission);
+    node.postTransmission(postTransmission);
 }
 
-// =================== QUERY ONE SLAVE ===================
-String querySlave(const ModbusDevice& sc) {
-  node.begin(sc.id, Serial);
-  uint8_t result = node.readInputRegisters(sc.regStart, sc.regCount);
+// ---------------- QUERY ONE SLAVE ----------------
+JsonObject querySlaveJson(const ModbusDevice& sc, JsonDocument& doc) {
+    node.begin(sc.id, Serial);
+    uint8_t result = node.readInputRegisters(sc.regStart, sc.regCount);
 
-  if (result == node.ku8MBSuccess) {
-    float temp = convertRegisterToTemperature(node.getResponseBuffer(0));
-    float hum  = convertRegisterToHumidity(node.getResponseBuffer(1));
+    JsonObject obj = doc.to<JsonObject>();
+    obj["id"] = sc.id;
+    obj["name"] = sc.name;
 
-    String payload = "{";
-    payload += "\"id\":" + String(sc.id) + ",";
-    payload += "\"name\":\"" + sc.name + "\",";
-    payload += "\"temperature\":" + String(temp, 1) + ",";
-    payload += "\"humidity\":" + String(hum, 1);
-    payload += "}";
-    return payload;
-  } else {
-    return "{\"id\":" + String(sc.id) + ",\"error\":\"0x" + String(result, HEX) + "\"}";
-  }
-}
-
-// =================== QUERY ALL SLAVES ===================
-String queryAllSlaves() {
-  String allPayload = "[";
-  for (size_t i = 0; i < slaveCount; i++) {
-    allPayload += querySlave(slaves[i]);
-    if (i < slaveCount - 1) allPayload += ",";
-  }
-  allPayload += "]";
-  return allPayload;
-}
-
-void updateSlavesFromWeb(JsonArray arr) {
-  slaveCount = 0;
-  for (JsonObject obj : arr) {
-    if (slaveCount < MAX_SLAVES) {
-      slaves[slaveCount].id       = obj["id"] | 1;       // default ID=1
-      slaves[slaveCount].regStart = obj["regStart"] | 0; // default start
-      slaves[slaveCount].regCount = obj["regCount"] | 2; // default 2 regs
-      slaves[slaveCount].name     = obj["name"] | "slave";
-      slaveCount++;
+    if (result == node.ku8MBSuccess) {
+        obj["temperature"] = convertRegisterToTemperature(node.getResponseBuffer(0));
+        obj["humidity"]    = convertRegisterToHumidity(node.getResponseBuffer(1));
+    } else {
+        obj["error"] = "0x" + String(result, HEX);
     }
-  }
+    return obj;
+}
+
+// ---------------- QUERY ALL SLAVES ----------------
+String queryAllSlaves() {
+    StaticJsonDocument<1024> doc;
+    JsonArray arr = doc.to<JsonArray>();
+
+    for (size_t i = 0; i < slaveCount; i++) {
+        StaticJsonDocument<128> tmp;
+        JsonObject slaveObj = querySlaveJson(slaves[i], tmp);
+        arr.add(slaveObj);
+    }
+
+    String output;
+    serializeJson(doc, output);
+    return output;
+}
+
+// ---------------- UPDATE SLAVES FROM WEB ----------------
+void updateSlavesFromWeb(JsonArray arr) {
+    slaveCount = 0;
+    for (JsonObject obj : arr) {
+        if (slaveCount < MAX_SLAVES) {
+            slaves[slaveCount].id       = obj["id"] | 1;
+            slaves[slaveCount].regStart = obj["regStart"] | 0;
+            slaves[slaveCount].regCount = obj["regCount"] | 2;
+            slaves[slaveCount].name     = obj["name"] | "slave";
+            slaveCount++;
+        }
+    }
 }
