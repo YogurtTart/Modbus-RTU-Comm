@@ -5,6 +5,7 @@
 #include "MQTTHandler.h"
 #include "ModbusHandler.h"
 #include "WebServerHandler.h"
+#include "FSHandler.h"
 
 // ----------------- Global Timing -----------------
 unsigned long previousMillis = 0;
@@ -12,7 +13,10 @@ const unsigned long interval = 3000; // Poll Modbus every 3s
 
 void setup() {
   Serial.begin(9600);
+ 
   Serial.println("\n--- ESP8266 Modbus RTU Master ---");
+
+  initFS();
 
   // Wi-Fi & MQTT
   setupWiFi();

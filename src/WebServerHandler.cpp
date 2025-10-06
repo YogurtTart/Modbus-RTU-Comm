@@ -1,4 +1,5 @@
 #include "WebServerHandler.h"
+#include "FSHandler.h"
 #include <ArduinoJson.h>
 
 ESP8266WebServer server(80);
@@ -21,23 +22,6 @@ void handleGetSlaves() {
     server.send(200, "application/json", output);
 }
 
-// ---------------- POST: update slaves via JSON ----------------
-void handleSetSlaves() {
-    if (server.hasArg("plain")) {
-        StaticJsonDocument<1024> doc;
-        DeserializationError err = deserializeJson(doc, server.arg("plain"));
-
-        if (!err && doc["slaves"].is<JsonArray>()) {
-            updateSlavesFromWeb(doc["slaves"].as<JsonArray>());
-            server.send(200, "application/json", "{\"status\":\"updated\"}");
-        } else {
-            server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
-        }
-    } else {
-        server.send(400, "application/json", "{\"error\":\"No body\"}");
-    }
-}
-
 // ---------------- POST: Delete slave by ID ----------------
 void handleDeleteSlave() {
     if (server.hasArg("id")) {
@@ -56,6 +40,7 @@ void handleDeleteSlave() {
         }
 
         if (found) {
+            saveSlavesToFS();
             server.send(200, "application/json", "{\"status\":\"deleted\"}");
         } else {
             server.send(404, "application/json", "{\"error\":\"ID not found\"}");
@@ -164,6 +149,8 @@ void handleAddSlaveForm() {
                 slaves[slaveCount].regCount = server.arg("regCount").toInt();
                 slaves[slaveCount].name     = newName;
                 slaveCount++;
+
+                saveSlavesToFS();
             }
 
             server.sendHeader("Location", "/");
@@ -181,7 +168,6 @@ void setupWebServer() {
     server.on("/addSlave", HTTP_POST, handleAddSlaveForm);
 
     server.on("/slaves", HTTP_GET, handleGetSlaves);
-    server.on("/slaves", HTTP_POST, handleSetSlaves);
 
     server.on("/deleteSlave", HTTP_POST, handleDeleteSlave);
 
