@@ -60,7 +60,7 @@ uint8_t readModbusRegisters(uint8_t slaveID, uint16_t startReg, uint16_t numRegs
     if (slaveID != lastSlaveID) {
         Serial.print("🔄 Initializing Modbus for Slave ID: ");
         Serial.println(slaveID);
-        node.begin(slaveID, Serial);
+        node.begin(1, Serial);
         node.preTransmission(preTransmission);
         node.postTransmission(postTransmission);
         lastSlaveID = slaveID;
@@ -111,21 +111,22 @@ uint8_t readModbusRegisters(uint8_t slaveID, uint16_t startReg, uint16_t numRegs
     //     Serial.println("   ✅ Modbus request sent successfully");
     // }
     
-    return node.readInputRegisters(startReg, numRegs);
+    return node.readInputRegisters(0, 2);
 }
 
 // Query a single slave and return success status
 bool querySingleSlave(const ModbusSlave& slave, JsonObject& resultObj) {
-    Serial.println();
-    Serial.print("🎯 STARTING querySingleSlave for: ");
-    Serial.print(slave.name);
-    Serial.print(" (ID: ");
-    Serial.print(slave.id);
-    Serial.print(")");
-    Serial.print(" - Reading registers ");
-    Serial.print(slave.startReg);
-    Serial.print(" to ");
-    Serial.println(slave.startReg + slave.numRegs - 1);
+
+    // Serial.println();
+    // Serial.print("🎯 STARTING querySingleSlave for: ");
+    // Serial.print(slave.name);
+    // Serial.print(" (ID: ");
+    // Serial.print(slave.id);
+    // Serial.print(")");
+    // Serial.print(" - Reading registers ");
+    // Serial.print(slave.startReg);
+    // Serial.print(" to ");
+    // Serial.println(slave.startReg + slave.numRegs - 1);
   
     uint8_t result = readModbusRegisters(slave.id, slave.startReg, slave.numRegs);
 
@@ -142,25 +143,25 @@ bool querySingleSlave(const ModbusSlave& slave, JsonObject& resultObj) {
             uint16_t rawTemp = node.getResponseBuffer(0);
             float temperature = convertRegisterToTemperature(rawTemp);
             resultObj["temperature"] = temperature;
-            Serial.print("   Temperature: Raw=0x");
-            Serial.print(rawTemp, HEX);
-            Serial.print(" (");
-            Serial.print(rawTemp);
-            Serial.print(") → ");
-            Serial.print(temperature);
-            Serial.println("°C");
+            // Serial.print("   Temperature: Raw=0x");
+            // Serial.print(rawTemp, HEX);
+            // Serial.print(" (");
+            // Serial.print(rawTemp);
+            // Serial.print(") → ");
+            // Serial.print(temperature);
+            // Serial.println("°C");
         }
         if (slave.numRegs >= 2) {
             uint16_t rawHum = node.getResponseBuffer(1);
             float humidity = convertRegisterToHumidity(rawHum);
             resultObj["humidity"] = humidity;
-            Serial.print("   Humidity: Raw=0x");
-            Serial.print(rawHum, HEX);
-            Serial.print(" (");
-            Serial.print(rawHum);
-            Serial.print(") → ");
-            Serial.print(humidity);
-            Serial.println("%");
+            // Serial.print("   Humidity: Raw=0x");
+            // Serial.print(rawHum, HEX);
+            // Serial.print(" (");
+            // Serial.print(rawHum);
+            // Serial.print(") → ");
+            // Serial.print(humidity);
+            // Serial.println("%");
         }
         
         // Add any additional registers
@@ -168,20 +169,20 @@ bool querySingleSlave(const ModbusSlave& slave, JsonObject& resultObj) {
             String regName = "reg" + String(i);
             uint16_t regValue = node.getResponseBuffer(i);
             resultObj[regName] = regValue;
-            Serial.print("   Register ");
-            Serial.print(i);
-            Serial.print(": 0x");
-            Serial.print(regValue, HEX);
-            Serial.print(" (");
-            Serial.print(regValue);
-            Serial.println(")");
+            // Serial.print("   Register ");
+            // Serial.print(i);
+            // Serial.print(": 0x");
+            // Serial.print(regValue, HEX);
+            // Serial.print(" (");
+            // Serial.print(regValue);
+            // Serial.println(")");
         }
         
-        Serial.print("📊 Slave ");
-        Serial.print(slave.id);
-        Serial.print(" (");
-        Serial.print(slave.name);
-        Serial.println(") completed successfully");
+        // Serial.print("📊 Slave ");
+        // Serial.print(slave.id);
+        // Serial.print(" (");
+        // Serial.print(slave.name);
+        // Serial.println(") completed successfully");
         
         return true;
     } else {
@@ -210,19 +211,19 @@ bool startNonBlockingQuery(ModbusSlave* slaves, uint8_t slaveCount) {
     Serial.print("📋 Number of slaves to query: ");
     Serial.println(slaveCount);
     
-    // Debug: Show all slaves that will be queried
-    for (uint8_t i = 0; i < slaveCount; i++) {
-        Serial.print("   Slave ");
-        Serial.print(i);
-        Serial.print(": ID=");
-        Serial.print(slaves[i].id);
-        Serial.print(", Name='");
-        Serial.print(slaves[i].name);
-        Serial.print("', Reg=");
-        Serial.print(slaves[i].startReg);
-        Serial.print(", Count=");
-        Serial.println(slaves[i].numRegs);
-    }
+    // // Debug: Show all slaves that will be queried
+    // for (uint8_t i = 0; i < slaveCount; i++) {
+    //     Serial.print("   Slave ");
+    //     Serial.print(i);
+    //     Serial.print(": ID=");
+    //     Serial.print(slaves[i].id);
+    //     Serial.print(", Name='");
+    //     Serial.print(slaves[i].name);
+    //     Serial.print("', Reg=");
+    //     Serial.print(slaves[i].startReg);
+    //     Serial.print(", Count=");
+    //     Serial.println(slaves[i].numRegs);
+    // }
     
     return true;
   }
@@ -248,16 +249,16 @@ bool continueNonBlockingQuery(ModbusSlave* slaves, uint8_t slaveCount) {
       slaveInProgress = true;
       slaveStartTime = millis();
       
-      Serial.println();
-      Serial.print("🔍 Querying slave [");
-      Serial.print(currentQueryIndex + 1);
-      Serial.print("/");
-      Serial.print(slaveCount);
-      Serial.print("]: ");
-      Serial.print(slaves[currentQueryIndex].name);
-      Serial.print(" (ID: ");
-      Serial.print(slaves[currentQueryIndex].id);
-      Serial.println(")");
+      // Serial.println();
+      // Serial.print("🔍 Querying slave [");
+      // Serial.print(currentQueryIndex + 1);
+      // Serial.print("/");
+      // Serial.print(slaveCount);
+      // Serial.print("]: ");
+      // Serial.print(slaves[currentQueryIndex].name);
+      // Serial.print(" (ID: ");
+      // Serial.print(slaves[currentQueryIndex].id);
+      // Serial.println(")");
       
     } else {
       // All slaves processed
@@ -269,11 +270,11 @@ bool continueNonBlockingQuery(ModbusSlave* slaves, uint8_t slaveCount) {
   
   // CHECK timeout for current slave
   if (slaveInProgress && (millis() - slaveStartTime > SLAVE_TIMEOUT_MS)) {
-    Serial.print("⏰ !!! Slave ");
-    Serial.print(slaves[currentQueryIndex].id);
-    Serial.print(" (");
-    Serial.print(slaves[currentQueryIndex].name);
-    Serial.println(") timeout - skipping !!!");
+    // Serial.print("⏰ !!! Slave ");
+    // Serial.print(slaves[currentQueryIndex].id);
+    // Serial.print(" (");
+    // Serial.print(slaves[currentQueryIndex].name);
+    // Serial.println(") timeout - skipping !!!");
     
     JsonObject obj = queryData.add<JsonObject>();
     obj["id"] = slaves[currentQueryIndex].id;

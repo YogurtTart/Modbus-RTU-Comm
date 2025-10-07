@@ -1,13 +1,22 @@
 #pragma once
 #include <ESP8266WebServer.h>
-#include "ModbusHandler.h"
+#include <ArduinoJson.h>
+#include "ModBusHandler.h"
 
-#define MAX_SLAVES 10
 
+// Global variables
 extern ESP8266WebServer server;
+extern bool savePending;
+extern bool shouldQuerySlaves;
 
+// Function prototypes
 void setupWebServer();
 void handleWebServer();
+void handleRoot();
 void handleGetSlaves();
-void handleSetSlaves();
-void handleAddSlaveForm();
+void handleAddSlave();
+void handleDeleteSlave();
+void saveSlavesToFS();
+void loadSlavesFromFS();
+void processPendingSaves();
+void requestSaveSlaves();
